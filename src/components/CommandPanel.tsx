@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Sparkles, Send } from "lucide-react";
-import { useWorkbench } from "../state/workbench";
-import { interpret } from "../engine/commands";
-import { createId } from "../engine/id";
+import { runWorkspaceCommand } from "../engine/assistant";
 export function CommandPanel({
   selected,
   disabled,
@@ -23,29 +21,7 @@ export function CommandPanel({
     try {
       if (disabled)
         throw new Error("Stop history replay before running commands.");
-      const store = useWorkbench.getState();
-      const cmd = interpret(prompt, store.graph, store.snapshots, selected);
-      switch (cmd.kind) {
-        case "add":
-          store.addNode({ id: createId(), label: cmd.label, type: cmd.type });
-          reply = `Created ${cmd.label} (${cmd.type}). Connect it to the architecture next.`;
-          break;
-        case "connect":
-          store.addEdge(cmd.source, cmd.target);
-          reply = "Connection created. Structural metrics updated.";
-          break;
-        case "save":
-          store.save(cmd.name);
-          reply = `Saved snapshot “${cmd.name}”.`;
-          break;
-        case "failure":
-          onFailure(cmd.seeds);
-          reply =
-            "Started a failure simulation at a 50% neighbor-loss threshold. The working architecture is preserved until you apply the result.";
-          break;
-        case "reply":
-          reply = cmd.text;
-      }
+      reply = runWorkspaceCommand(prompt, selected, onFailure);
       if (!concise)
         reply +=
           " All calculations use the current local workspace and the documented unweighted graph model.";

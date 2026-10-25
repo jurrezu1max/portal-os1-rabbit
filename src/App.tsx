@@ -49,6 +49,7 @@ import { EvolutionPanel, HistoryChart } from "./components/EvolutionPanel";
 import { FailurePanel } from "./components/FailurePanel";
 import { TranslationPanel } from "./components/TranslationPanel";
 import { ResearchPanel } from "./components/ResearchPanel";
+import { PortalAssistant } from "./components/PortalAssistant";
 import { CommandPanel } from "./components/CommandPanel";
 import { IntelligenceFeed } from "./components/IntelligenceFeed";
 import { MediaCenter } from "./components/MediaCenter";
@@ -58,6 +59,12 @@ const navigation: {
   icon: LucideIcon;
   shortcut: string;
 }[] = [
+  {
+    page: "Portal assistant",
+    label: "Portal Assistant",
+    icon: Sparkles,
+    shortcut: "⌘",
+  },
   { page: "Topology", label: "Command Center", icon: Network, shortcut: "01" },
   {
     page: "Architecture evolution",
@@ -87,6 +94,10 @@ const advanced: { page: Page; label: string; icon: LucideIcon }[] = [
   { page: "Research mode", label: "Structural Manifold", icon: FlaskConical },
 ];
 const headings: Record<Page, { title: string; description: string }> = {
+  "Portal assistant": {
+    title: "Portal Assistant",
+    description: "Your workspace for structural intelligence.",
+  },
   "Intelligence feed": {
     title: "Intelligence Feed",
     description: "Bring public observations into your architecture research.",
@@ -169,7 +180,7 @@ function Dialog({
 export default function App() {
   const store = useWorkbench(),
     { graph, snapshots, history, baselineId, notice } = store;
-  const [page, setPage] = useState<Page>("Topology"),
+  const [page, setPage] = useState<Page>("Portal assistant"),
     [research, setResearch] = useState(false),
     [mobileNav, setMobileNav] = useState(false);
   const [selected, setSelected] = useState<string | null>("Core Executive"),
@@ -507,7 +518,9 @@ export default function App() {
     </Panel>
   );
   return (
-    <div className="app-shell">
+    <div
+      className={`app-shell ${page === "Portal assistant" ? "portal-shell" : ""}`}
+    >
       <a href="#main" className="skip-link">
         Skip to content
       </a>
@@ -517,7 +530,7 @@ export default function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            go("Topology");
+            go("Portal assistant");
           }}
         >
           <div className="brand-mark">
@@ -525,9 +538,9 @@ export default function App() {
           </div>
           <div>
             <strong>
-              MAX<span>–</span>SIM
+              PORTAL<span>–</span>OS
             </strong>
-            <small>ARCHITECTURE WORKBENCH</small>
+            <small>UMBRELLA ECOSYSTEM</small>
           </div>
         </a>
         <div className="workspace-label">
@@ -634,77 +647,79 @@ export default function App() {
           </div>
         </header>
         <main id="main">
-          <div className="page-heading">
-            <div>
-              <div className="heading-eyebrow">
-                <span /> MAX-SIM / STRUCTURAL INTELLIGENCE
-              </div>
-              <h1>
-                {headings[page].title}
-                <span className="version-tag">v2.0</span>
-              </h1>
-              <p>{headings[page].description}</p>
-            </div>
-            <div className="page-actions">
-              <button
-                className="button"
-                disabled={replay !== null}
-                onClick={() => fileRef.current?.click()}
-              >
-                <Upload size={14} /> Import
-              </button>
-              <details className="export-menu">
-                <summary className="button">
-                  <Download size={14} /> Export
-                  <ChevronDown size={12} />
-                </summary>
-                <div>
-                  {(["JSON", "CSV", "SVG", "PNG"] as const).map((format) => (
-                    <button
-                      key={format}
-                      disabled={
-                        (format === "SVG" || format === "PNG") &&
-                        !["Topology", "Architecture evolution"].includes(page)
-                      }
-                      onClick={(e) => {
-                        e.currentTarget
-                          .closest("details")
-                          ?.removeAttribute("open");
-                        if (format === "JSON")
-                          download(
-                            exportJSON(active),
-                            "max-sim-architecture.json",
-                          );
-                        else if (format === "CSV")
-                          download(
-                            exportCSV(active),
-                            "max-sim-architecture.csv",
-                            "text/csv",
-                          );
-                        else if (svgRef.current)
-                          void exportImage(
-                            svgRef.current,
-                            format.toLowerCase() as "svg" | "png",
-                          ).catch(onError);
-                      }}
-                    >
-                      {format === "SVG" || format === "PNG"
-                        ? "Topology image"
-                        : "Architecture"}{" "}
-                      .{format.toLowerCase()}
-                    </button>
-                  ))}
+          {page !== "Portal assistant" && (
+            <div className="page-heading">
+              <div>
+                <div className="heading-eyebrow">
+                  <span /> MAX-SIM / STRUCTURAL INTELLIGENCE
                 </div>
-              </details>
-              <button
-                className="button primary"
-                disabled={replay !== null}
-                onClick={openSave}
-              >
-                <Camera size={14} /> Save snapshot
-              </button>
+                <h1>
+                  {headings[page].title}
+                  <span className="version-tag">v2.0</span>
+                </h1>
+                <p>{headings[page].description}</p>
+              </div>
+              <div className="page-actions">
+                <button
+                  className="button"
+                  disabled={replay !== null}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <Upload size={14} /> Import
+                </button>
+                <details className="export-menu">
+                  <summary className="button">
+                    <Download size={14} /> Export
+                    <ChevronDown size={12} />
+                  </summary>
+                  <div>
+                    {(["JSON", "CSV", "SVG", "PNG"] as const).map((format) => (
+                      <button
+                        key={format}
+                        disabled={
+                          (format === "SVG" || format === "PNG") &&
+                          !["Topology", "Architecture evolution"].includes(page)
+                        }
+                        onClick={(e) => {
+                          e.currentTarget
+                            .closest("details")
+                            ?.removeAttribute("open");
+                          if (format === "JSON")
+                            download(
+                              exportJSON(active),
+                              "max-sim-architecture.json",
+                            );
+                          else if (format === "CSV")
+                            download(
+                              exportCSV(active),
+                              "max-sim-architecture.csv",
+                              "text/csv",
+                            );
+                          else if (svgRef.current)
+                            void exportImage(
+                              svgRef.current,
+                              format.toLowerCase() as "svg" | "png",
+                            ).catch(onError);
+                        }}
+                      >
+                        {format === "SVG" || format === "PNG"
+                          ? "Topology image"
+                          : "Architecture"}{" "}
+                        .{format.toLowerCase()}
+                      </button>
+                    ))}
+                  </div>
+                </details>
+                <button
+                  className="button primary"
+                  disabled={replay !== null}
+                  onClick={openSave}
+                >
+                  <Camera size={14} /> Save snapshot
+                </button>
+              </div>
             </div>
-          </div>
+          )}
           <input
             hidden
             ref={fileRef}
@@ -763,216 +778,234 @@ export default function App() {
               </button>
             </div>
           )}
-          <CommandPanel
-            selected={selected}
-            disabled={replay !== null}
-            onFailure={(seeds) => {
-              go("Failure simulator");
-              setFailureRequest({ seeds, id: Date.now() });
-            }}
-          />
-          <div className="metrics-grid">
-            <Metric
-              label="Identity Invariant"
-              value={number(metrics.identity)}
-              unit="I(S)"
-              caption="Structural identity"
-              help="Sum of positive Laplacian eigenvalues; equals twice the edge count for this simple unweighted graph."
-            />
-            <Metric
-              label="Structural Drift"
-              value={`${differential.drift > 1e-8 ? "+" : ""}${number(differential.drift)}`}
-              unit="Dᵢ"
-              caption="Relative to baseline"
-              accent="#6aabff"
-              help="Current identity minus selected baseline identity."
-            />
-            <Metric
-              label="Structural Fidelity"
-              value={number(differential.fidelity, 3)}
-              unit="Fₜ"
-              caption="Invariant retention ratio"
-              accent="#ac9aff"
-              help="Current identity divided by baseline identity. Undefined for zero baseline identity; may exceed one."
-            />
-            <Metric
-              label="Translation Loss"
-              value={number(differential.loss, 3)}
-              unit="bits"
-              caption="Spectral entropy difference"
-              accent="#edbe72"
-              help="Baseline spectral entropy minus current spectral entropy. A negative value indicates entropy gain."
+          <div hidden={page !== "Portal assistant"}>
+            <PortalAssistant
+              onNavigate={go}
+              onFailure={(seeds) => {
+                go("Failure simulator");
+                setFailureRequest({ seeds, id: Date.now() });
+              }}
             />
           </div>
-          <div className="architecture-bar">
-            <div>
-              <span className="status-dot" />
-              <strong>
-                {replay !== null ? "History preview" : "Live architecture"}
-              </strong>
-              <span className="bar-divider" />
-              <span>{active.nodes.length} nodes</span>
-              <span>{active.edges.length} edges</span>
-            </div>
-            <div>
-              <span>
-                λ₂ <b>{number(metrics.connectivity, 3)}</b>
-              </span>
-              <span>
-                ρ(A) <b>{number(metrics.radius, 3)}</b>
-              </span>
-              <label>
-                Baseline{" "}
-                <select
-                  aria-label="Comparison baseline"
-                  value={baselineId}
-                  onChange={(e) => store.setBaseline(e.target.value)}
-                >
-                  {snapshots.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </div>
-          <motion.div
-            key={page}
-            initial={{ opacity: 0, y: 7 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {page === "Topology" && (
-              <>
-                <div className="command-grid">
-                  <div className="command-left">
-                    {topology}
-                    <div className="two-column bottom-panels">
-                      <Panel
-                        title="Spectral overview"
-                        eyebrow="LAPLACIAN EIGENVALUES"
-                        action={
-                          <TextLink
-                            onClick={() => {
-                              setResearch(true);
-                              go("Spectral analysis");
-                            }}
-                          >
-                            Analyze
-                          </TextLink>
-                        }
-                      >
-                        <LineChart
-                          labels={metrics.eigenvalues.map((_, i) => i)}
-                          series={[
-                            {
-                              name: "Eigenvalue λ",
-                              values: metrics.eigenvalues,
-                              color: "#4bdfbc",
-                            },
-                          ]}
-                          height={155}
-                        />
-                      </Panel>
-                      <Panel
-                        title="Subsystem health"
-                        eyebrow="TOPOLOGY-BASED STATUS"
-                      >
-                        <Gauge
-                          value={
-                            active.nodes.length ? live / active.nodes.length : 0
-                          }
-                          label={`${live} / ${active.nodes.length} connected`}
-                          detail={`${metrics.components.length} communication region${metrics.components.length === 1 ? "" : "s"}`}
-                        />
-                        <div className="health-summary">
-                          <span>
-                            <i className="status-dot" /> Connected <b>{live}</b>
-                          </span>
-                          <span>
-                            <i className="status-dot warning" /> Isolated{" "}
-                            <b>{active.nodes.length - live}</b>
-                          </span>
-                        </div>
-                        <p className="note">
-                          Structural connectivity proxy; no external health
-                          telemetry.
-                        </p>
-                      </Panel>
-                    </div>
-                  </div>
-                  <div className="command-right">
-                    {inspector}
-                    <div className="insight-card">
-                      <div>
-                        <ShieldAlert size={17} />
-                        <span>STRESS-TEST YOUR DESIGN</span>
-                      </div>
-                      <h3>How resilient is your architecture?</h3>
-                      <p>Inject a subsystem failure and inspect the cascade.</p>
-                      <button onClick={() => go("Failure simulator")}>
-                        Open failure simulator <ArrowUpRight size={15} />
-                      </button>
-                    </div>
-                    {editor}
-                  </div>
-                </div>
-                <Panel
-                  title="Architecture evolution"
-                  eyebrow={`${history.length} RECORDED EVENTS`}
-                  action={
-                    <TextLink onClick={() => go("Architecture evolution")}>
-                      Open evolution lab
-                    </TextLink>
-                  }
-                >
-                  <HistoryChart />
-                </Panel>
-              </>
-            )}
-            {page === "Architecture evolution" && (
-              <div className="page-stack">
-                <div className="command-grid">
-                  <div>{topology}</div>
-                  <div>
-                    {editor}
-                    {inspector}
-                  </div>
-                </div>
-                <EvolutionPanel
-                  onSave={openSave}
-                  onReplay={() => {
-                    setReplay(0);
-                    setReplayRunning(true);
-                  }}
-                  replaying={replay !== null}
-                  onStop={stopReplay}
-                  onError={onError}
+          {page !== "Portal assistant" && (
+            <>
+              <CommandPanel
+                selected={selected}
+                disabled={replay !== null}
+                onFailure={(seeds) => {
+                  go("Failure simulator");
+                  setFailureRequest({ seeds, id: Date.now() });
+                }}
+              />
+              <div className="metrics-grid">
+                <Metric
+                  label="Identity Invariant"
+                  value={number(metrics.identity)}
+                  unit="I(S)"
+                  caption="Structural identity"
+                  help="Sum of positive Laplacian eigenvalues; equals twice the edge count for this simple unweighted graph."
+                />
+                <Metric
+                  label="Structural Drift"
+                  value={`${differential.drift > 1e-8 ? "+" : ""}${number(differential.drift)}`}
+                  unit="Dᵢ"
+                  caption="Relative to baseline"
+                  accent="#6aabff"
+                  help="Current identity minus selected baseline identity."
+                />
+                <Metric
+                  label="Structural Fidelity"
+                  value={number(differential.fidelity, 3)}
+                  unit="Fₜ"
+                  caption="Invariant retention ratio"
+                  accent="#ac9aff"
+                  help="Current identity divided by baseline identity. Undefined for zero baseline identity; may exceed one."
+                />
+                <Metric
+                  label="Translation Loss"
+                  value={number(differential.loss, 3)}
+                  unit="bits"
+                  caption="Spectral entropy difference"
+                  accent="#edbe72"
+                  help="Baseline spectral entropy minus current spectral entropy. A negative value indicates entropy gain."
                 />
               </div>
-            )}
-            {page === "Failure simulator" && (
-              <FailurePanel
-                key={failureRequest?.id ?? "manual"}
-                initialSeeds={failureRequest?.seeds}
-                autoRun={!!failureRequest}
-              />
-            )}
+              <div className="architecture-bar">
+                <div>
+                  <span className="status-dot" />
+                  <strong>
+                    {replay !== null ? "History preview" : "Live architecture"}
+                  </strong>
+                  <span className="bar-divider" />
+                  <span>{active.nodes.length} nodes</span>
+                  <span>{active.edges.length} edges</span>
+                </div>
+                <div>
+                  <span>
+                    λ₂ <b>{number(metrics.connectivity, 3)}</b>
+                  </span>
+                  <span>
+                    ρ(A) <b>{number(metrics.radius, 3)}</b>
+                  </span>
+                  <label>
+                    Baseline{" "}
+                    <select
+                      aria-label="Comparison baseline"
+                      value={baselineId}
+                      onChange={(e) => store.setBaseline(e.target.value)}
+                    >
+                      {snapshots.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <motion.div
+                key={page}
+                initial={{ opacity: 0, y: 7 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {page === "Topology" && (
+                  <>
+                    <div className="command-grid">
+                      <div className="command-left">
+                        {topology}
+                        <div className="two-column bottom-panels">
+                          <Panel
+                            title="Spectral overview"
+                            eyebrow="LAPLACIAN EIGENVALUES"
+                            action={
+                              <TextLink
+                                onClick={() => {
+                                  setResearch(true);
+                                  go("Spectral analysis");
+                                }}
+                              >
+                                Analyze
+                              </TextLink>
+                            }
+                          >
+                            <LineChart
+                              labels={metrics.eigenvalues.map((_, i) => i)}
+                              series={[
+                                {
+                                  name: "Eigenvalue λ",
+                                  values: metrics.eigenvalues,
+                                  color: "#4bdfbc",
+                                },
+                              ]}
+                              height={155}
+                            />
+                          </Panel>
+                          <Panel
+                            title="Subsystem health"
+                            eyebrow="TOPOLOGY-BASED STATUS"
+                          >
+                            <Gauge
+                              value={
+                                active.nodes.length
+                                  ? live / active.nodes.length
+                                  : 0
+                              }
+                              label={`${live} / ${active.nodes.length} connected`}
+                              detail={`${metrics.components.length} communication region${metrics.components.length === 1 ? "" : "s"}`}
+                            />
+                            <div className="health-summary">
+                              <span>
+                                <i className="status-dot" /> Connected{" "}
+                                <b>{live}</b>
+                              </span>
+                              <span>
+                                <i className="status-dot warning" /> Isolated{" "}
+                                <b>{active.nodes.length - live}</b>
+                              </span>
+                            </div>
+                            <p className="note">
+                              Structural connectivity proxy; no external health
+                              telemetry.
+                            </p>
+                          </Panel>
+                        </div>
+                      </div>
+                      <div className="command-right">
+                        {inspector}
+                        <div className="insight-card">
+                          <div>
+                            <ShieldAlert size={17} />
+                            <span>STRESS-TEST YOUR DESIGN</span>
+                          </div>
+                          <h3>How resilient is your architecture?</h3>
+                          <p>
+                            Inject a subsystem failure and inspect the cascade.
+                          </p>
+                          <button onClick={() => go("Failure simulator")}>
+                            Open failure simulator <ArrowUpRight size={15} />
+                          </button>
+                        </div>
+                        {editor}
+                      </div>
+                    </div>
+                    <Panel
+                      title="Architecture evolution"
+                      eyebrow={`${history.length} RECORDED EVENTS`}
+                      action={
+                        <TextLink onClick={() => go("Architecture evolution")}>
+                          Open evolution lab
+                        </TextLink>
+                      }
+                    >
+                      <HistoryChart />
+                    </Panel>
+                  </>
+                )}
+                {page === "Architecture evolution" && (
+                  <div className="page-stack">
+                    <div className="command-grid">
+                      <div>{topology}</div>
+                      <div>
+                        {editor}
+                        {inspector}
+                      </div>
+                    </div>
+                    <EvolutionPanel
+                      onSave={openSave}
+                      onReplay={() => {
+                        setReplay(0);
+                        setReplayRunning(true);
+                      }}
+                      replaying={replay !== null}
+                      onStop={stopReplay}
+                      onError={onError}
+                    />
+                  </div>
+                )}
+                {page === "Failure simulator" && (
+                  <FailurePanel
+                    key={failureRequest?.id ?? "manual"}
+                    initialSeeds={failureRequest?.seeds}
+                    autoRun={!!failureRequest}
+                  />
+                )}
 
-            {page === "Spectral analysis" && (
-              <SpectralPanel graph={active} metrics={metrics} />
-            )}
-            {page === "Translation lab" && (
-              <TranslationPanel onError={onError} />
-            )}
-            {page === "Research mode" && (
-              <ResearchPanel metrics={metrics} baseline={baselineMetrics} />
-            )}
-          </motion.div>
-          <div hidden={page !== "Intelligence feed"}>
-            <IntelligenceFeed onTopology={() => go("Topology")} />
-          </div>
+                {page === "Spectral analysis" && (
+                  <SpectralPanel graph={active} metrics={metrics} />
+                )}
+                {page === "Translation lab" && (
+                  <TranslationPanel onError={onError} />
+                )}
+                {page === "Research mode" && (
+                  <ResearchPanel metrics={metrics} baseline={baselineMetrics} />
+                )}
+              </motion.div>
+              <div hidden={page !== "Intelligence feed"}>
+                <IntelligenceFeed onTopology={() => go("Topology")} />
+              </div>
+            </>
+          )}
           <MediaCenter
             visible={page === "Media center"}
             onPlayback={() => go("Failure simulator")}

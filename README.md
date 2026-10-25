@@ -141,3 +141,9 @@ This release implements a 2D research environment with local persistence. 3D/Thr
 Existing spectral metrics, topology contracts, and Streamlit APIs are unchanged. Dedicated dependency graph ingestion, author/citation graphs, authenticated data providers, free-form model-backed conversation, and automatic event-to-simulation mapping remain extensions.
 
 CSV exports mark text encoding as `apostrophe-v1` and prefix formula-like text and literal leading apostrophes to make spreadsheet opening safer. The importer decodes only marked rows, retaining exact IDs/labels and numeric coordinates. Legacy CSV without the marker retains its original interpretation. External CSV consumers may ignore the new column but must decode marked text to recover the original values.
+
+## Portal Assistant
+
+The default home is a Copilot-style interactive Portal-OS workspace. Suggested prompts and the keyboard-accessible composer use the existing local command interpreter to create subsystems, connect nodes, compute identity, save snapshots, and launch failure simulations. Ask `Summarize my architecture` for current metrics or `Explain the layers` for the Umbrella blueprint. Use **What can I ask?** for command examples. Enter sends; Shift+Enter adds a line. Responses can be copied; **New conversation** clears only the transcript. Conversation history is session-only and bounded to 20 exchanges. All existing workbench screens remain available from navigation.
+
+The five-layer blueprint and determinant target are recorded in [CODERABBIT_INSTRUCTIONS.md](CODERABBIT_INSTRUCTIONS.md). The GUI identifies the local assistant and the unverified manifest target. Model-backed conversation, Worker execution, identity verification, and marketplace licensing are architectural targets, not connected services in this release.
