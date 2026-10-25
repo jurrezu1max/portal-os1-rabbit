@@ -52,6 +52,7 @@ export const COLORS: Record<SubsystemType, string> = {
   Cognition: "#5cdbec",
 };
 export type Page =
+  | "Portal assistant"
   | "Intelligence feed"
   | "Media center"
   | "Topology"
