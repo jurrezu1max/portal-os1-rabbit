@@ -160,3 +160,21 @@ npm run build          # strict types and production bundle
 ```
 
 Market inputs and planetary observations are explicitly sourced operator records. ICV and the agent network provide deterministic local analysis and recommendations. Independent fact verification, model-backed execution, cloud identity, and legal compliance certification require external contracts and are not claimed by this Alpha.
+
+## Identity Registry
+
+Open **Identity Dashboard** in Portal navigation to manage humans, agents, organizations, eight roles, and a shared capability catalog with proficiency from 0–100. Identity records persist separately in this browser and can be exported. The typed registry API and capability vectors live in `src/identity/`; the dashboard lives in `src/components/identity/`. Identity modules and components require 100% test coverage. See [Identity Registry contracts and persistence](docs/portal-alpha.md#identity-registry) for API usage, recovery, capability semantics, and integration boundaries.
+
+## GS-IP Asset Registry
+
+Open **GS-IP Registry Dashboard** from Portal navigation to register assets owned by Identity Registry records, manage lifecycle stages and licenses, record USD receipts, and inspect revenue/stage metrics. The registry persists separately from the existing GS-IP Factory and includes ownership history, JSON export, storage recovery, and royalty planning previews. All new registry modules and components enforce at least 95% coverage. See [GS-IP Registry contracts and API](docs/portal-alpha.md#gs-ip-asset-registry).
+
+### Connected system
+
+Open **Founder Console** for shared system health, or use PMD Command to connect
+registered assets, markets, initiatives and agent identities. Compliance Console
+now audits registered assets as well as legacy factory records. Agent results
+carry across views and become stale when their inputs change.
+
+Worker adapters use `VITE_PORTAL_WORKER_BASE_URL`; no deployment is configured by
+default. See [the integration workflow and Worker contract](docs/portal-alpha.md#connected-portal-system).

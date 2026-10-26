@@ -139,6 +139,9 @@ function readCompliance(r: Record<string, unknown>): ComplianceRecord {
   auditCompliance(record);
   return record;
 }
+export function validateComplianceRecord(value: unknown): ComplianceRecord {
+  return readCompliance(object(value));
+}
 /** Validate untrusted browser storage and imports, including cross-domain references. */
 export function validateWorkspace(value: unknown): PortalWorkspace {
   const row = object(value);
