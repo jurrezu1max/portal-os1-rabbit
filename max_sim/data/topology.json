@@ -15,5 +15,11 @@
     ["Virtualization Engine", "Agent Cluster B"],
     ["State Recovery", "Memory Buffer"],
     ["Agent Cluster A", "Agent Cluster B"]
-  ]
+  ],
+  "metadata": {
+    "schemaVersion": 1,
+    "model": "simple-undirected-unweighted",
+    "source": "Original six-subsystem MAX-SIM baseline",
+    "scenarioPolicy": "copy-before-transform"
+  }
 }

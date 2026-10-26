@@ -58,3 +58,23 @@ class StructuralInvariant:
 
     def structural_drift(self, target: "StructuralInvariant") -> float:
         return target.identity() - self.identity()
+
+    def scenario_forecast(self, scenarios: list[nx.Graph]) -> list[dict[str, float | int | None]]:
+        """Measure explicit scenario steps relative to this baseline, not future certainty.
+
+        No fitted growth rate or real-world causal prediction is implied.
+        """
+        results = []
+        for step, graph in enumerate(scenarios, start=1):
+            target = StructuralInvariant(graph)
+            results.append({
+                "step": step,
+                "nodes": target.node_count(),
+                "edges": target.edge_count(),
+                "identity": target.identity(),
+                "connectivity": target.connectivity(),
+                "drift": self.structural_drift(target),
+                "fidelity": self.structural_fidelity(target),
+                "entropy_loss": self.translation_loss(target),
+            })
+        return results

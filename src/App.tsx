@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { DASHBOARDS, isDashboard, type DashboardId } from "./portal/navigation";
+import { resolveRoute, routeFor } from "./portal/routing";
+const PortalDashboard = lazy(() => import("./portal/PortalDashboard"));
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -135,6 +138,20 @@ const headings: Record<Page, { title: string; description: string }> = {
     description: "Explore experimental MAX Calculus dynamics in state space.",
   },
 };
+type AppPage = Page | DashboardId;
+function pageFromHash(): AppPage {
+  const dashboard = resolveRoute(window.location.hash);
+  if (dashboard) return dashboard;
+  try {
+    const value = decodeURIComponent(
+      window.location.hash.replace(/^#\/workbench\//, ""),
+    );
+    if (Object.hasOwn(headings, value)) return value as Page;
+  } catch {
+    /* Invalid URLs return to the assistant. */
+  }
+  return "Portal assistant";
+}
 function Dialog({
   title,
   onClose,
@@ -180,8 +197,10 @@ function Dialog({
 export default function App() {
   const store = useWorkbench(),
     { graph, snapshots, history, baselineId, notice } = store;
-  const [page, setPage] = useState<Page>("Portal assistant"),
-    [research, setResearch] = useState(false),
+  const [page, setPage] = useState<AppPage>(pageFromHash),
+    [research, setResearch] = useState(() =>
+      advanced.some((item) => item.page === pageFromHash()),
+    ),
     [mobileNav, setMobileNav] = useState(false);
   const [selected, setSelected] = useState<string | null>("Core Executive"),
     [modal, setModal] = useState<"node" | "snapshot" | null>(null),
@@ -236,15 +255,43 @@ export default function App() {
       onError(e);
     }
   };
-  const go = (next: Page) => {
+  const go = (next: AppPage) => {
+    const hash = isDashboard(next)
+      ? routeFor(next)
+      : `#/workbench/${encodeURIComponent(next)}`;
+    if (window.location.hash !== hash) window.history.pushState(null, "", hash);
+    if (advanced.some((item) => item.page === next)) setResearch(true);
     setFailureRequest(null);
     setPage(next);
     setMobileNav(false);
+    requestAnimationFrame(() => document.getElementById("main")?.focus());
     if (next !== "Topology" && next !== "Architecture evolution") {
       setReplay(null);
       setReplayRunning(false);
     }
   };
+  useEffect(() => {
+    const sync = () => {
+      const next = pageFromHash();
+      setPage(next);
+      setMobileNav(false);
+      setReplay(null);
+      setReplayRunning(false);
+      if (advanced.some((item) => item.page === next)) setResearch(true);
+    };
+    window.addEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    return () => {
+      window.removeEventListener("hashchange", sync);
+      window.removeEventListener("popstate", sync);
+    };
+  }, []);
+  useEffect(() => {
+    if (mobileNav)
+      document
+        .querySelector<HTMLButtonElement>("#portal-navigation nav button")
+        ?.focus();
+  }, [mobileNav]);
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => store.setNotice(""), 6500);
@@ -517,14 +564,33 @@ export default function App() {
       />
     </Panel>
   );
+  const heading = isDashboard(page)
+    ? DASHBOARDS.find((d) => d.id === page)!
+    : headings[page];
   return (
     <div
-      className={`app-shell ${page === "Portal assistant" ? "portal-shell" : ""}`}
+      className={`app-shell ${page === "Portal assistant" ? "portal-shell" : isDashboard(page) ? "dashboard-shell" : ""}`}
     >
-      <a href="#main" className="skip-link">
+      <a
+        href="#main"
+        className="skip-link"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("main")?.focus();
+        }}
+      >
         Skip to content
       </a>
-      <aside className={`sidebar ${mobileNav ? "mobile-open" : ""}`}>
+      <aside
+        id="portal-navigation"
+        className={`sidebar ${mobileNav ? "mobile-open" : ""}`}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            setMobileNav(false);
+            document.querySelector<HTMLButtonElement>(".mobile-menu")?.focus();
+          }
+        }}
+      >
         <a
           className="brand"
           href="#"
@@ -553,12 +619,27 @@ export default function App() {
           </div>
           <ChevronDown size={13} />
         </div>
-        <span className="nav-label">WORKSPACE</span>
+        <span className="nav-label">PORTAL-OS</span>
+        <nav aria-label="Portal dashboards">
+          {DASHBOARDS.map((item) => (
+            <button
+              key={item.id}
+              className={`nav-item ${page === item.id ? "active" : ""}`}
+              aria-current={page === item.id ? "page" : undefined}
+              onClick={() => go(item.id)}
+            >
+              <Layers3 size={16} />
+              <span>{item.title}</span>
+            </button>
+          ))}
+        </nav>
+        <span className="nav-label">WORKBENCH</span>
         <nav aria-label="Primary navigation">
           {navigation.map((item) => (
             <button
               key={item.page}
               className={`nav-item ${page === item.page ? "active" : ""}`}
+              aria-current={page === item.page ? "page" : undefined}
               onClick={() => go(item.page)}
             >
               <item.icon size={18} />
@@ -592,6 +673,7 @@ export default function App() {
               <button
                 key={item.page}
                 className={`nav-item ${page === item.page ? "active" : ""}`}
+                aria-current={page === item.page ? "page" : undefined}
                 onClick={() => go(item.page)}
               >
                 <item.icon size={17} />
@@ -628,6 +710,8 @@ export default function App() {
             <button
               className="mobile-menu icon-button"
               aria-label="Open navigation"
+              aria-expanded={mobileNav}
+              aria-controls="portal-navigation"
               onClick={() => setMobileNav((v) => !v)}
             >
               <Menu size={19} />
@@ -636,7 +720,7 @@ export default function App() {
               <Layers3 size={14} /> Workspace
             </span>
             <ChevronRight size={12} />
-            <span>{headings[page].title}</span>
+            <span>{heading.title}</span>
           </div>
           <div className="topbar-right">
             <span className="local-status">
@@ -646,7 +730,7 @@ export default function App() {
             <div className="avatar small">MX</div>
           </div>
         </header>
-        <main id="main">
+        <main id="main" tabIndex={-1}>
           {page !== "Portal assistant" && (
             <div className="page-heading">
               <div>
@@ -654,70 +738,76 @@ export default function App() {
                   <span /> MAX-SIM / STRUCTURAL INTELLIGENCE
                 </div>
                 <h1>
-                  {headings[page].title}
+                  {heading.title}
                   <span className="version-tag">v2.0</span>
                 </h1>
-                <p>{headings[page].description}</p>
+                <p>{heading.description}</p>
               </div>
-              <div className="page-actions">
-                <button
-                  className="button"
-                  disabled={replay !== null}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <Upload size={14} /> Import
-                </button>
-                <details className="export-menu">
-                  <summary className="button">
-                    <Download size={14} /> Export
-                    <ChevronDown size={12} />
-                  </summary>
-                  <div>
-                    {(["JSON", "CSV", "SVG", "PNG"] as const).map((format) => (
-                      <button
-                        key={format}
-                        disabled={
-                          (format === "SVG" || format === "PNG") &&
-                          !["Topology", "Architecture evolution"].includes(page)
-                        }
-                        onClick={(e) => {
-                          e.currentTarget
-                            .closest("details")
-                            ?.removeAttribute("open");
-                          if (format === "JSON")
-                            download(
-                              exportJSON(active),
-                              "max-sim-architecture.json",
-                            );
-                          else if (format === "CSV")
-                            download(
-                              exportCSV(active),
-                              "max-sim-architecture.csv",
-                              "text/csv",
-                            );
-                          else if (svgRef.current)
-                            void exportImage(
-                              svgRef.current,
-                              format.toLowerCase() as "svg" | "png",
-                            ).catch(onError);
-                        }}
-                      >
-                        {format === "SVG" || format === "PNG"
-                          ? "Topology image"
-                          : "Architecture"}{" "}
-                        .{format.toLowerCase()}
-                      </button>
-                    ))}
-                  </div>
-                </details>
-                <button
-                  className="button primary"
-                  disabled={replay !== null}
-                  onClick={openSave}
-                >
-                  <Camera size={14} /> Save snapshot
-                </button>
-              </div>
+              {!isDashboard(page) && (
+                <div className="page-actions">
+                  <button
+                    className="button"
+                    disabled={replay !== null}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <Upload size={14} /> Import
+                  </button>
+                  <details className="export-menu">
+                    <summary className="button">
+                      <Download size={14} /> Export
+                      <ChevronDown size={12} />
+                    </summary>
+                    <div>
+                      {(["JSON", "CSV", "SVG", "PNG"] as const).map(
+                        (format) => (
+                          <button
+                            key={format}
+                            disabled={
+                              (format === "SVG" || format === "PNG") &&
+                              !["Topology", "Architecture evolution"].includes(
+                                page,
+                              )
+                            }
+                            onClick={(e) => {
+                              e.currentTarget
+                                .closest("details")
+                                ?.removeAttribute("open");
+                              if (format === "JSON")
+                                download(
+                                  exportJSON(active),
+                                  "max-sim-architecture.json",
+                                );
+                              else if (format === "CSV")
+                                download(
+                                  exportCSV(active),
+                                  "max-sim-architecture.csv",
+                                  "text/csv",
+                                );
+                              else if (svgRef.current)
+                                void exportImage(
+                                  svgRef.current,
+                                  format.toLowerCase() as "svg" | "png",
+                                ).catch(onError);
+                            }}
+                          >
+                            {format === "SVG" || format === "PNG"
+                              ? "Topology image"
+                              : "Architecture"}{" "}
+                            .{format.toLowerCase()}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  </details>
+                  <button
+                    className="button primary"
+                    disabled={replay !== null}
+                    onClick={openSave}
+                  >
+                    <Camera size={14} /> Save snapshot
+                  </button>
+                </div>
+              )}
             </div>
           )}
           <input
@@ -787,7 +877,21 @@ export default function App() {
               }}
             />
           </div>
-          {page !== "Portal assistant" && (
+          {isDashboard(page) && (
+            <Suspense fallback={<p role="status">Loading dashboard…</p>}>
+              <PortalDashboard
+                page={page}
+                navigate={go}
+                openWorkbench={go}
+                selected={selected}
+                onFailure={(seeds) => {
+                  go("Failure simulator");
+                  setFailureRequest({ seeds, id: Date.now() });
+                }}
+              />
+            </Suspense>
+          )}
+          {page !== "Portal assistant" && !isDashboard(page) && (
             <>
               <CommandPanel
                 selected={selected}

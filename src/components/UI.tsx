@@ -57,7 +57,7 @@ export function Metric({
     >
       <div className="metric-label">
         {label}
-        <span title={help} aria-label={help} tabIndex={0}>
+        <span role="img" title={help} aria-label={help} tabIndex={0}>
           <CircleHelp size={12} />
         </span>
       </div>
