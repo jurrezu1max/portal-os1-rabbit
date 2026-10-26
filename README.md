@@ -21,7 +21,7 @@ npm run build     # strict TypeScript checks + production bundle in dist/
 npm run preview   # serve the production build locally
 ```
 
-Deploy `dist/` to a static host. The app uses no URL routes that require server rewrites. Use HTTPS for deployment. Identifiers use `crypto.randomUUID` with a UUID v4 fallback based on `crypto.getRandomValues` for plain-HTTP LAN testing.
+Deploy `dist/` to a static host. Configure an SPA fallback to `index.html` for the direct `/copilot` route, or use `/#/copilot` on hosts without rewrites. Existing dashboard and workbench routes use URL hashes. Use HTTPS for deployment. Identifiers use `crypto.randomUUID` with a UUID v4 fallback based on `crypto.getRandomValues` for plain-HTTP LAN testing.
 
 ## Three primary screens
 
@@ -144,7 +144,7 @@ CSV exports mark text encoding as `apostrophe-v1` and prefix formula-like text a
 
 ## Portal Assistant
 
-The default home is a Copilot-style interactive Portal-OS workspace. Suggested prompts and the keyboard-accessible composer use the existing local command interpreter to create subsystems, connect nodes, compute identity, save snapshots, and launch failure simulations. Ask `Summarize my architecture` for current metrics or `Explain the layers` for the Umbrella blueprint. Use **What can I ask?** for command examples. Enter sends; Shift+Enter adds a line. Responses can be copied; **New conversation** clears only the transcript. Conversation history is session-only and bounded to 20 exchanges. All existing workbench screens remain available from navigation.
+The original Portal Assistant remains available from workbench navigation. Suggested prompts and the keyboard-accessible composer use the existing local command interpreter to create subsystems, connect nodes, compute identity, save snapshots, and launch failure simulations. Ask `Summarize my architecture` for current metrics or `Explain the layers` for the Umbrella blueprint. Use **What can I ask?** for command examples. Enter sends; Shift+Enter adds a line. Responses can be copied; **New conversation** clears only the transcript. Conversation history is session-only and bounded to 20 exchanges. All existing workbench screens remain available from navigation.
 
 The five-layer blueprint and determinant target are recorded in [CODERABBIT_INSTRUCTIONS.md](CODERABBIT_INSTRUCTIONS.md). The GUI identifies the local assistant and the unverified manifest target. Model-backed conversation, Worker execution, identity verification, and marketplace licensing are architectural targets, not connected services in this release.
 
@@ -178,3 +178,11 @@ carry across views and become stale when their inputs change.
 
 Worker adapters use `VITE_PORTAL_WORKER_BASE_URL`; no deployment is configured by
 default. See [the integration workflow and Worker contract](docs/portal-alpha.md#connected-portal-system).
+
+### Portal Copilot
+
+Portal Copilot is the primary home at `/` and `/copilot` (portable hash entry: `/#/copilot`). Unlike the existing hash dashboard routes, direct `/copilot` requests require a static host SPA fallback to `index.html`; Vite provides this during development. Existing dashboard and workbench hash routes remain supported, including Founder Console and the original Portal Assistant.
+
+Copilot connects to `portalSystem` for current identities, registered assets, opportunity scores, compliance issues and architecture counts. Suggested prompts include `Summarize my workspace`, `Show market opportunities`, `Review compliance`, and `Run agents: review my priorities`. Agents use existing local evidence-based recommendations. `Open <dashboard name>` offers a link to the existing dashboard. Architecture commands use the existing command engine; simulation application still follows the workbench workflow.
+
+Enter sends, Shift+Enter adds a line, and composing text with an IME does not submit. Conversation history supports search, selection and deletion; it stays in memory for the current tab session across app navigation (20 conversations, 20 exchanges each) and clears on reload. No transcript is sent to a provider or saved in browser storage. Open-ended model chat is not connected. Protected kernel modules are unchanged.
