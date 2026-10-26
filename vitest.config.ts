@@ -7,6 +7,7 @@ export default defineConfig({
         "src/engine/**/*.ts",
         "src/state/**/*.ts",
         "src/portal/**/*.{ts,tsx}",
+        "src/copilot/**/*.{ts,tsx}",
         "src/icv/**/*.ts",
         "src/gsip/**/*.ts",
         "src/markets/**/*.ts",

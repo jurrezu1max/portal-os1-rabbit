@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { DASHBOARDS, isDashboard, type DashboardId } from "./portal/navigation";
 import { resolveRoute, routeFor } from "./portal/routing";
+const PortalCopilot = lazy(() => import("./copilot/PortalCopilot"));
 const PortalDashboard = lazy(() => import("./portal/PortalDashboard"));
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -138,8 +139,14 @@ const headings: Record<Page, { title: string; description: string }> = {
     description: "Explore experimental MAX Calculus dynamics in state space.",
   },
 };
-type AppPage = Page | DashboardId;
+type AppPage = Page | DashboardId | "copilot";
 function pageFromHash(): AppPage {
+  if (
+    window.location.hash === "#/copilot" ||
+    (!window.location.hash &&
+      ["/", "/copilot", "/copilot/"].includes(window.location.pathname))
+  )
+    return "copilot";
   const dashboard = resolveRoute(window.location.hash);
   if (dashboard) return dashboard;
   try {
@@ -256,9 +263,12 @@ export default function App() {
     }
   };
   const go = (next: AppPage) => {
-    const hash = isDashboard(next)
-      ? routeFor(next)
-      : `#/workbench/${encodeURIComponent(next)}`;
+    const hash =
+      next === "copilot"
+        ? "#/copilot"
+        : isDashboard(next)
+          ? routeFor(next)
+          : `#/workbench/${encodeURIComponent(next)}`;
     if (window.location.hash !== hash) window.history.pushState(null, "", hash);
     if (advanced.some((item) => item.page === next)) setResearch(true);
     setFailureRequest(null);
@@ -564,6 +574,18 @@ export default function App() {
       />
     </Panel>
   );
+  if (page === "copilot")
+    return (
+      <Suspense fallback={<p role="status">Loading Portal Copilot…</p>}>
+        <PortalCopilot
+          navigate={go}
+          onFailure={(seeds) => {
+            go("Failure simulator");
+            setFailureRequest({ seeds, id: Date.now() });
+          }}
+        />
+      </Suspense>
+    );
   const heading = isDashboard(page)
     ? DASHBOARDS.find((d) => d.id === page)!
     : headings[page];
@@ -596,7 +618,7 @@ export default function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            go("Portal assistant");
+            go("copilot");
           }}
         >
           <div className="brand-mark">
@@ -621,6 +643,10 @@ export default function App() {
         </div>
         <span className="nav-label">PORTAL-OS</span>
         <nav aria-label="Portal dashboards">
+          <button className="nav-item" onClick={() => go("copilot")}>
+            <Sparkles size={16} />
+            <span>Portal Copilot</span>
+          </button>
           {DASHBOARDS.map((item) => (
             <button
               key={item.id}
