@@ -52,5 +52,37 @@ class ComparisonTests(unittest.TestCase):
         np.testing.assert_allclose(source.laplacian_spectrum(), [0, 1, 3], atol=1e-12)
 
 
+
+
+class ScenarioTests(unittest.TestCase):
+    def test_scenarios_and_evolution_preserve_the_baseline(self):
+        from graph_engine import scenario, evolve_network
+        graph = build_maxsim()
+        baseline = graph.copy()
+        failed = scenario(graph, ["Core Executive"])
+        self.assertEqual(failed.number_of_nodes(), 5)
+        self.assertNotIn("Core Executive", failed)
+        evolved = evolve_network(graph, [("Memory Buffer", "Agent Cluster B")])
+        self.assertEqual(evolved.number_of_edges(), 8)
+        self.assertEqual(set(graph.edges), set(baseline.edges))
+        forecast = StructuralInvariant(graph).scenario_forecast([failed, evolved])
+        self.assertEqual([row["step"] for row in forecast], [1, 2])
+        self.assertAlmostEqual(forecast[1]["identity"], 16)
+        self.assertAlmostEqual(forecast[1]["drift"], 2)
+        self.assertAlmostEqual(forecast[1]["fidelity"], 16 / 14)
+        self.assertEqual(StructuralInvariant(graph).scenario_forecast([]), [])
+        self.assertIsNone(StructuralInvariant(nx.Graph()).scenario_forecast([nx.Graph()])[0]["fidelity"])
+
+    def test_invalid_scenarios_are_atomic(self):
+        from graph_engine import scenario, evolve_network
+        graph = build_maxsim()
+        with self.assertRaises(ValueError):
+            scenario(graph, ["missing"])
+        for edges in [[("missing", "Core Executive")], [("Core Executive", "Core Executive")], [("Core Executive", "Memory Buffer")], [("Memory Buffer", "Agent Cluster B"), ("Agent Cluster B", "Memory Buffer")]]:
+            with self.assertRaises(ValueError):
+                evolve_network(graph, edges)
+        self.assertEqual(graph.number_of_edges(), 7)
+
+
 if __name__ == "__main__":
     unittest.main()

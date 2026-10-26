@@ -50,22 +50,22 @@ All architectures are simple, undirected, and unweighted. Duplicate IDs, duplica
 
 The original six-node Streamlit topology and its existing definitions are preserved. The React sample is an explicitly expanded 12-node model.
 
-| Measure | Definition |
-| --- | --- |
-| Laplacian | `L = D − A`, node order matches the architecture array |
-| Identity `I(S)` | Sum of Laplacian eigenvalues above `1e−8`; equals `2 × edge count` for this graph model |
-| Drift `Dᵢ` | `I(target) − I(source)`; cards use selected baseline, timeline uses preceding event |
-| Algebraic connectivity | Second-smallest Laplacian eigenvalue; zero for disconnected or fewer than two nodes |
-| Spectral radius | Largest absolute **adjacency** eigenvalue |
-| Entropy `H(S)` | `−Σ pᵢ log₂ pᵢ`, where `pᵢ = λᵢ / Σλ`; zero when there are no positive eigenvalues |
-| Translation loss `Lₜ` | `H(source) − H(target)` in bits; negative means entropy gain |
-| Fidelity `Fₜ` | `I(target) / I(source)`; **undefined/N/A** if source identity is zero; can exceed 1 |
-| Preservation score | `min(Iₐ,Iᵦ) / max(Iₐ,Iᵦ)`; 1 when both are zero |
-| Information proxies | Preserved = `min(Hₐ,Hᵦ)`; destroyed = `max(0,Lₜ)`; gained = `max(0,−Lₜ)` |
-| Centrality | Degree divided by `n−1`; zero for singleton |
-| Betweenness | Brandes shortest-path betweenness normalized for an undirected graph |
-| Graph diameter | Largest shortest-path distance; N/A for empty/disconnected graphs; singleton = 0 |
-| Emergence proxy | Mean local clustering coefficient, with degree < 2 contributing zero |
+| Measure                | Definition                                                                              |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| Laplacian              | `L = D − A`, node order matches the architecture array                                  |
+| Identity `I(S)`        | Sum of Laplacian eigenvalues above `1e−8`; equals `2 × edge count` for this graph model |
+| Drift `Dᵢ`             | `I(target) − I(source)`; cards use selected baseline, timeline uses preceding event     |
+| Algebraic connectivity | Second-smallest Laplacian eigenvalue; zero for disconnected or fewer than two nodes     |
+| Spectral radius        | Largest absolute **adjacency** eigenvalue                                               |
+| Entropy `H(S)`         | `−Σ pᵢ log₂ pᵢ`, where `pᵢ = λᵢ / Σλ`; zero when there are no positive eigenvalues      |
+| Translation loss `Lₜ`  | `H(source) − H(target)` in bits; negative means entropy gain                            |
+| Fidelity `Fₜ`          | `I(target) / I(source)`; **undefined/N/A** if source identity is zero; can exceed 1     |
+| Preservation score     | `min(Iₐ,Iᵦ) / max(Iₐ,Iᵦ)`; 1 when both are zero                                         |
+| Information proxies    | Preserved = `min(Hₐ,Hᵦ)`; destroyed = `max(0,Lₜ)`; gained = `max(0,−Lₜ)`                |
+| Centrality             | Degree divided by `n−1`; zero for singleton                                             |
+| Betweenness            | Brandes shortest-path betweenness normalized for an undirected graph                    |
+| Graph diameter         | Largest shortest-path distance; N/A for empty/disconnected graphs; singleton = 0        |
+| Emergence proxy        | Mean local clustering coefficient, with degree < 2 contributing zero                    |
 
 Identity is not a unique graph identifier. Cospectral graphs exist. Spectral entropy does not measure semantic information or cognition. The UI labels these experimental interpretations. Eigenvectors have arbitrary signs; repeated eigenvalues permit non-unique bases.
 
@@ -147,3 +147,16 @@ CSV exports mark text encoding as `apostrophe-v1` and prefix formula-like text a
 The default home is a Copilot-style interactive Portal-OS workspace. Suggested prompts and the keyboard-accessible composer use the existing local command interpreter to create subsystems, connect nodes, compute identity, save snapshots, and launch failure simulations. Ask `Summarize my architecture` for current metrics or `Explain the layers` for the Umbrella blueprint. Use **What can I ask?** for command examples. Enter sends; Shift+Enter adds a line. Responses can be copied; **New conversation** clears only the transcript. Conversation history is session-only and bounded to 20 exchanges. All existing workbench screens remain available from navigation.
 
 The five-layer blueprint and determinant target are recorded in [CODERABBIT_INSTRUCTIONS.md](CODERABBIT_INSTRUCTIONS.md). The GUI identifies the local assistant and the unverified manifest target. Model-backed conversation, Worker execution, identity verification, and marketplace licensing are architectural targets, not connected services in this release.
+
+## Portal-OS Alpha production domains
+
+The [production manifest](CODERABBIT.md) guides incremental development. All nine Portal dashboards are accessible from navigation: Executive, Opportunity Radar, Research, GS-IP Factory, PMD, Compliance, Agents, Umbrella Planetary, and Founder Mission. Existing assistant, topology, research, media, feed, snapshots, and failure workflows remain available.
+
+See [Portal Alpha architecture and workflow](docs/portal-alpha.md) for domain contracts, scoring formulas, source traceability, persistence/recovery, agent behavior, compliance rules, and MAX-SIM scenario APIs. Portal uses a separate validated local workspace with JSON import/export; its data does not replace the original graph store. Dashboards use hash URLs and work on static hosting without server rewrites.
+
+```bash
+npm test -- --coverage  # >=80% engine/domain coverage; 100% assistant/commands/graph
+npm run build          # strict types and production bundle
+```
+
+Market inputs and planetary observations are explicitly sourced operator records. ICV and the agent network provide deterministic local analysis and recommendations. Independent fact verification, model-backed execution, cloud identity, and legal compliance certification require external contracts and are not claimed by this Alpha.
