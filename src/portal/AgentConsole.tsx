@@ -12,11 +12,16 @@ import { createMission } from "../mission/planning";
 export function Agents({
   data,
   update,
+  onRun,
+  sharedResults,
 }: {
   data: PortalWorkspace;
   update: (change: (w: PortalWorkspace) => PortalWorkspace) => void;
+  onRun?: (prompt: string) => Record<string, AgentResult>;
+  sharedResults?: Record<string, AgentResult>;
 }) {
-  const [results, setResults] = useState<Record<string, AgentResult>>({});
+  const [localResults, setResults] = useState<Record<string, AgentResult>>({});
+  const results = sharedResults ?? localResults;
   const [message, setMessage] = useState("");
   return (
     <>
@@ -45,9 +50,11 @@ export function Agents({
               missions: data.missions,
             };
             setResults(
-              Object.fromEntries(
-                AGENT_REGISTRY.map(({ id }) => [id, AGENTS[id](input)]),
-              ),
+              onRun
+                ? onRun(v.prompt)
+                : Object.fromEntries(
+                    AGENT_REGISTRY.map(({ id }) => [id, AGENTS[id](input)]),
+                  ),
             );
           }}
         />

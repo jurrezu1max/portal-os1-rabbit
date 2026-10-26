@@ -3729,7 +3729,84 @@ dialog input {
 .dashboard-shell .avatar {
   background: #24364c;
 }
+.identity-id {
+  display: block;
+  font-size: 10px;
+  color: #9cafc7;
+  overflow-wrap: anywhere;
+  margin-top: 6px;
+}
+.identity-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.identity-roles label,
+.identity-assignment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.identity-dashboard input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #71e2c5;
+}
+.identity-search input {
+  padding: 10px;
+  color: #e0eafa;
+  background: #0b121d;
+  border: 1px solid #35455e;
+  border-radius: 7px;
+}
+.identity-selected {
+  background: #143128;
+}
+.identity-dashboard progress {
+  width: 70px;
+  accent-color: #71e2c5;
+}
+.identity-vector {
+  margin-top: 16px;
+  overflow-wrap: anywhere;
+}
 .dashboard-shell footer {
   color: #9cafc7;
   font-size: 10px;
+}
+
+.gsip-stage-filter select {
+  padding: 10px;
+  color: #e0eafa;
+  background: #0b121d;
+  border: 1px solid #35455e;
+  border-radius: 7px;
+}
+.gsip-registry-dashboard a {
+  color: #71e2c5;
+  text-decoration: underline;
+}
+
+.system-select select {
+  width: 100%;
+  color: #e0eafa;
+  background: #0b121d;
+  border: 1px solid #35455e;
+  border-radius: 7px;
+  padding: 10px;
+}
+.system-connections ul {
+  padding: 8px 20px;
+  line-height: 1.8;
+}
+.system-connections .button-row {
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.system-worker-result {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 320px;
+  overflow: auto;
 }

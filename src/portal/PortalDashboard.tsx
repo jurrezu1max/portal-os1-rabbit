@@ -1,4 +1,9 @@
+import SystemConnections from "../components/integration/SystemConnections";
+import { usePortalSystem } from "../integration/usePortalSystem";
+import { portalSystem } from "../integration/system";
+import GSIPRegistryDashboard from "../components/gsip/GSIPRegistryDashboard";
 import { Research } from "./ResearchConsole";
+import IdentityDashboard from "../components/identity/IdentityDashboard";
 import { Compliance } from "./ComplianceConsole";
 import { Agents } from "./AgentConsole";
 import { numeric, txt, Rows, Empty, Stat } from "./DashboardUI";
@@ -90,6 +95,7 @@ export default function PortalDashboard({
   onFailure: (seeds: string[]) => void;
 }) {
   const { data, error, recovery, update, restore, replaceSaved } = usePortal();
+  const systemState = usePortalSystem();
   const summary = useMemo(() => composeDashboard(data), [data]);
   const file = useRef<HTMLInputElement>(null);
   const [notice, setNotice] = useState("");
@@ -105,6 +111,20 @@ export default function PortalDashboard({
     }
   };
   const title = DASHBOARDS.find((d) => d.id === page)!.title;
+  if (page === "gsip-registry")
+    return (
+      <>
+        <SystemConnections page={page} />
+        <GSIPRegistryDashboard />
+      </>
+    );
+  if (page === "identity")
+    return (
+      <>
+        <SystemConnections page={page} />
+        <IdentityDashboard />
+      </>
+    );
   return (
     <section className="portal-dashboard" aria-label={title}>
       <div className="portal-workspace-bar">
@@ -201,6 +221,7 @@ export default function PortalDashboard({
         {notice}
       </p>
       <Settings data={data} update={update} />
+      <SystemConnections page={page} />
       {page === "executive" && (
         <>
           <div className="portal-stats">
@@ -378,7 +399,11 @@ export default function PortalDashboard({
         </>
       )}
       {page === "research" && (
-        <Research data={data} update={update} openWorkbench={openWorkbench} />
+        <Research
+          data={{ ...data, profile: systemState.profile }}
+          update={update}
+          openWorkbench={openWorkbench}
+        />
       )}
       {page === "factory" && (
         <>
@@ -646,7 +671,18 @@ export default function PortalDashboard({
         </>
       )}
       {page === "compliance" && <Compliance data={data} update={update} />}
-      {page === "agents" && <Agents data={data} update={update} />}
+      {page === "agents" && (
+        <Agents
+          data={{ ...data, profile: systemState.profile }}
+          update={update}
+          onRun={portalSystem.runAgents}
+          sharedResults={Object.fromEntries(
+            systemState.agents
+              .filter((agent) => agent.result && agent.status !== "stale")
+              .map((agent) => [agent.id, agent.result!]),
+          )}
+        />
+      )}
       {page === "umbrella" && (
         <>
           <Panel

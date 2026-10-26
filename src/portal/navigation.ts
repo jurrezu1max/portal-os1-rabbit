@@ -1,5 +1,21 @@
 export const DASHBOARDS = [
   {
+    id: "founder",
+    title: "Founder Console",
+    description:
+      "Live identities, assets, revenue, opportunities, agents and mission health.",
+  },
+  {
+    id: "gsip-registry",
+    title: "GS-IP Registry Dashboard",
+    description: "Asset ownership, lifecycle, licenses, and revenue receipts.",
+  },
+  {
+    id: "identity",
+    title: "Identity Dashboard",
+    description: "People, agents, organizations, roles, and capabilities.",
+  },
+  {
     id: "executive",
     title: "Executive Dashboard",
     description: "Workspace evidence, priorities, and structural health.",
